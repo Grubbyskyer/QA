@@ -1,0 +1,55 @@
+<html>
+<body>
+<pre>
+    #*
+        This is notes.
+    *#
+    Hello, World!
+
+    $!{value1} ## !表示如果这个变量不存在，则强制为空 如果不加，且这个变量不存在，就按文本解析
+
+    colors: $!{colors}
+
+    #foreach($color in $colors)
+        This is color $!{foreach.index}, $color, $!{foreach.count} ## index from 0, count from 1
+
+    #end
+
+    #foreach($key in $map.keySet())
+        Key:$key   Value:$map.get($key)
+    #end
+
+    #foreach($kv in $map.entrySet())
+        Key:$kv.getKey()   Value:$kv.getValue()
+    #end
+
+    #foreach($kv in $map.entrySet())
+        Key:$kv.key   Value:$kv.value
+    #end
+
+    User: $!{user.name} == $!{user.getName()}
+    Description: $!{user.description}
+
+    #set($title = "nowcoder")
+    Title:$!{title}
+
+    #parse("header1.html") ##parse will parse the variable but include won't
+
+    #include("header1.html")
+
+    #macro(render_color, $index, $color)
+        COLOR RENDER FUNCTION $index, $color
+    #end
+
+    #foreach($color in $colors)
+        #render_color($foreach.index, $color)
+    #end
+
+    #set($hello = "hello")
+    #set($helloworld1 = "${hello} world") ##concat the strings, must use { }
+
+    $helloworld1
+
+</pre>
+</body>
+</html>
