@@ -2,6 +2,7 @@ package me.tianxing.controller;
 
 import me.tianxing.model.*;
 import me.tianxing.service.CommentService;
+import me.tianxing.service.LikeService;
 import me.tianxing.service.QuestionService;
 import me.tianxing.service.UserService;
 import me.tianxing.util.WendaUtil;
@@ -34,8 +35,13 @@ public class QuestionController {
     @Autowired
     CommentService commentService;
 
+    @Autowired
+    LikeService likeService;
+
     private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
+
+    // post a question
     @RequestMapping(path = {"/question/add"}, method = {RequestMethod.POST})
     @ResponseBody
     public String addQuestion(@RequestParam("title") String title, @RequestParam("content") String content) {
@@ -59,15 +65,23 @@ public class QuestionController {
         return WendaUtil.getJSONString(1, "失败");
     }
 
+    // the detail page of a question
     @RequestMapping(path = {"/question/{qid}"}, method = {RequestMethod.GET, RequestMethod.POST})
     public String questionDetail(Model model, @PathVariable("qid") int qid) {
         Question question = questionService.selectById(qid);
         model.addAttribute("question", question);
         List<Comment> commentsList = commentService.getCommentsByEntity(question.getId(), EntityType.ENTITY_QUESTION);
         List<ViewObject> vos = new ArrayList<ViewObject>();
+        // comment list
         for (Comment comment : commentsList) {
             ViewObject vo = new ViewObject();
             vo.set("comment", comment);
+            if (hostHolder.getUser() == null) {
+                vo.set("liked", 0);
+            } else {
+                vo.set("liked", likeService.getLikeStatus(hostHolder.getUser().getId(), EntityType.ENTITY_COMMENT, comment.getId()));
+            }
+            vo.set("likeCount", likeService.getLikeCount(EntityType.ENTITY_COMMENT, comment.getId()));
             vo.set("user", userService.getUser(comment.getUserId()));
             vos.add(vo);
         }

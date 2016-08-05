@@ -1,5 +1,8 @@
 package me.tianxing.controller;
 
+import me.tianxing.async.EventModel;
+import me.tianxing.async.EventProducer;
+import me.tianxing.async.EventType;
 import me.tianxing.constants.StringConstants;
 import me.tianxing.service.UserService;
 import me.tianxing.util.GeetestLib;
@@ -25,6 +28,9 @@ public class LoginController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    EventProducer eventProducer;
 
     // 提交注册的数据
     @RequestMapping(path = {"/regpost/"}, method = {RequestMethod.POST})
@@ -106,6 +112,12 @@ public class LoginController {
         try {
             Map<String, String> map = userService.login(username, password);
             // map包含ticket或者msg
+
+            // send an email if login IP exception is checked
+            if (true) {
+                eventProducer.fireEvent(new EventModel(EventType.LOGIN)
+                        .setExt("username", username).setExt("email", "973186626@qq.com"));
+            }
             // 登录成功情况下包含"ticket"子段
             if (map.containsKey("ticket")) {
                 Cookie cookie = new Cookie("ticket", map.get("ticket"));
