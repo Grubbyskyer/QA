@@ -38,4 +38,13 @@ public class CommentService {
         return commentDAO.getCommentById(commentId);
     }
 
+    /**
+     * 获取指定用户的评论总数
+     * @param userId
+     * @return
+     */
+    public int getUserCommentCount(int userId) {
+        return commentDAO.getUserCommentCount(userId);
+    }
+
 }

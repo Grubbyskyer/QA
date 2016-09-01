@@ -114,7 +114,7 @@ public class LoginController {
             // map包含ticket或者msg
 
             // send an email if login IP exception is checked
-            if (true) {
+            if (false) {
                 eventProducer.fireEvent(new EventModel(EventType.LOGIN)
                         .setExt("username", username).setExt("email", "973186626@qq.com"));
             }

@@ -1,5 +1,8 @@
 package me.tianxing.controller;
 
+import me.tianxing.async.EventModel;
+import me.tianxing.async.EventProducer;
+import me.tianxing.async.EventType;
 import me.tianxing.model.Comment;
 import me.tianxing.model.EntityType;
 import me.tianxing.model.HostHolder;
@@ -38,6 +41,9 @@ public class CommentController {
     QuestionService questionService;
 
     @Autowired
+    EventProducer eventProducer;
+
+    @Autowired
     HostHolder hostHolder;
 
     @RequestMapping(path = {"/addComment"}, method = {RequestMethod.POST})
@@ -63,6 +69,10 @@ public class CommentController {
             // update the comment_count in table question
             int commentCount = commentService.getCommentCount(comment.getEntityId(), comment.getEntityType());
             questionService.updateCommentCount(comment.getEntityId(), commentCount);
+            // 发送异步消息
+            eventProducer.fireEvent(new EventModel(EventType.COMMENT).setActorId(comment.getUserId())
+                    .setEntityId(questionId));
+
         } catch (Exception e) {
             logger.error("增加评论失败！" + e.getMessage());
         }

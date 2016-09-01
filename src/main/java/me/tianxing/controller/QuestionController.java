@@ -1,10 +1,7 @@
 package me.tianxing.controller;
 
 import me.tianxing.model.*;
-import me.tianxing.service.CommentService;
-import me.tianxing.service.LikeService;
-import me.tianxing.service.QuestionService;
-import me.tianxing.service.UserService;
+import me.tianxing.service.*;
 import me.tianxing.util.WendaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +34,9 @@ public class QuestionController {
 
     @Autowired
     LikeService likeService;
+
+    @Autowired
+    FollowService followService;
 
     private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
@@ -86,6 +86,27 @@ public class QuestionController {
             vos.add(vo);
         }
         model.addAttribute("vos", vos);
+
+        // 获取该问题的粉丝列表，即哪些人关注了这个问题
+        List<ViewObject> followUsers = new ArrayList<ViewObject>();
+        List<Integer> users = followService.getFollowers(EntityType.ENTITY_QUESTION, qid, 20);
+        for (Integer userId : users) {
+            ViewObject vo = new ViewObject();
+            User u = userService.getUser(userId);
+            if (u == null) {
+                continue;
+            }
+            vo.set("name", u.getName());
+            vo.set("headUrl", u.getHeadUrl());
+            vo.set("id", u.getId());
+            followUsers.add(vo);
+        }
+        model.addAttribute("followUsers", followUsers);
+        if (hostHolder.getUser() != null) {
+            model.addAttribute("followed", followService.isFollower(hostHolder.getUser().getId(), EntityType.ENTITY_QUESTION, qid));
+        } else {
+            model.addAttribute("followed", false);
+        }
         return "detail";
     }
 

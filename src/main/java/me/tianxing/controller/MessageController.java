@@ -49,7 +49,7 @@ public class MessageController {
             for (Message message : messageList) {
                 ViewObject vo = new ViewObject();
                 vo.set("conversation", message);
-                int targetId = message.getFromId() == localUserId ? message.getToId() : localUserId;
+                int targetId = message.getFromId() == localUserId ? message.getToId() : message.getFromId();
                 User user = userService.getUser(targetId);
                 vo.set("user", user);
                 vo.set("unread", messageService.getConversationUnreadCount(localUserId, message.getConversationId()));
