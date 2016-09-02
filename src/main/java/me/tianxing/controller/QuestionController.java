@@ -1,5 +1,8 @@
 package me.tianxing.controller;
 
+import me.tianxing.async.EventModel;
+import me.tianxing.async.EventProducer;
+import me.tianxing.async.EventType;
 import me.tianxing.model.*;
 import me.tianxing.service.*;
 import me.tianxing.util.WendaUtil;
@@ -38,6 +41,9 @@ public class QuestionController {
     @Autowired
     FollowService followService;
 
+    @Autowired
+    EventProducer eventProducer;
+
     private static final Logger logger = LoggerFactory.getLogger(QuestionController.class);
 
 
@@ -57,6 +63,10 @@ public class QuestionController {
                 question.setUserId(hostHolder.getUser().getId());
             }
             if (questionService.addQuestion(question) > 0) {
+                // 发一个异步事件，让solr索引该问题的内容和标题
+                eventProducer.fireEvent(new EventModel(EventType.ADD_QUESTION)
+                        .setActorId(question.getUserId()).setEntityId(question.getId())
+                        .setExt("title", question.getTitle()).setExt("content", question.getContent()));
                 return WendaUtil.getJSONString(0);
             }
         } catch (Exception e) {
